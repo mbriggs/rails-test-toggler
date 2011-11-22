@@ -136,12 +136,12 @@
 (defun rtt/test-file (test-re rails-dir test-file)
   (replace-regexp-in-string (concat "test\\/" test-re)
                             rails-dir
-                            (drop-test-extension test-file)))
+                            (rtt/drop-test-extension test-file)))
 
 (defun rtt/target-file (rails-dir-re test-dir file)
   (replace-regexp-in-string rails-dir-re
                             (concat "test/" test-dir)
-                            (add-test-extension file)))
+                            (rtt/add-test-extension file)))
 
 (defun rtt/drop-test-extension (file)
   (replace-regexp-in-string "_test" "" file))
