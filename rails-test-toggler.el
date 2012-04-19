@@ -56,13 +56,12 @@
 (defun rtt/find-target-by-test-type (test-file)
   (cond ((rtt/helper? test-file) (rtt/find-helper test-file))
         ((rtt/model? test-file) (rtt/find-model test-file))
-        ((rtt/controller? test-file) (rtt/find-controller test-file))))
+        ((rtt/controller? test-file) (rtt/find-controller test-file))
+        ((rtt/app? test-file) (rtt/find-generic test-file))))
 
 
 
-;;;;;;;;;;;;;;;;
-;; Predicates ;;
-;;;;;;;;;;;;;;;;
+;; Predicates
 
 (defun rtt/test? (file)
   (string-match "\\/test\\/" file))
@@ -71,6 +70,9 @@
   (or
    (string-match "\\/app\\/models" file)
    (string-match "\\/lib\\/" file)))
+
+(defun rtt/app? (file)
+  (string-match "\\/app" file))
 
 (defun rtt/helper? (file)
   (string-match "\\/app\\/helpers" file))
@@ -103,8 +105,10 @@
 (defun rtt/find-model (file)
   (or
    (rtt/find-target "app\\/models" "unit" file)
-   (rtt/find-target "lib" "unit" file)
-   (rtt/find-target "presenters" "unit" file)))
+   (rtt/find-target "lib" "unit" file)))
+
+(defun rtt/find-generic (file)
+  (rtt/find-target "app" "unit" file))
 
 (defun rtt/find-functional-test (test-file)
   (rtt/find-test "functional" "app/controllers" test-file))
@@ -116,7 +120,7 @@
   (or
    (rtt/find-test "unit" "app/models" test-file)
    (rtt/find-test "unit" "lib" test-file)
-   (rtt/find-test "unit" "" test-file)))
+   (rtt/find-test "unit" "app" test-file)))
 
 
 
