@@ -103,7 +103,7 @@
 (defun rtt/find-spec (file)
   (let* ((path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
          (rb (replace-regexp-in-string ".rb$" "_spec.rb" path))
-         (spec (replace-regexp-in-string ".js$" "_spec.js" path)))
+         (spec (replace-regexp-in-string ".js$" "_spec.js" rb)))
     (if (file-exists-p spec)
         (find-file spec))))
 
