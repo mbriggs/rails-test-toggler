@@ -4,7 +4,7 @@
 ;;
 ;; Author: Matt Briggs <matt@mattbriggs.net>
 ;; URL: http://github.com/mbriggs/rails-test-toggler
-;; Version: 0.1
+;; Version: 0.2
 ;; Keywords: rails
 
 ;; This file is not part of GNU Emacs.
