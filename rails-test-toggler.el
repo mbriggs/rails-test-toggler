@@ -46,65 +46,85 @@
   (let ((file (buffer-file-name)))
     (if (rtt/test? file)
         (rtt/find-test-by-target-type file)
-        (rtt/find-target-by-test-type file))))
+      (rtt/find-target-by-test-type file))))
 
 (defun rtt/find-test-by-target-type (test-file)
-  (cond ((rtt/helper-test? test-file) (rtt/find-helper-test test-file))
-        ((rtt/unit-test? test-file) (rtt/find-unit-test test-file))
-        ((rtt/functional-test? test-file) (rtt/find-functional-test test-file))))
+  (if (rtt/rspec? test-file) (rtt/find-spec-target test-file)
+    (cond ((rtt/helper-test? test-file) (rtt/find-helper-test test-file))
+          ((rtt/unit-test? test-file) (rtt/find-unit-test test-file))
+          ((rtt/functional-test? test-file) (rtt/find-functional-test test-file)))))
 
 (defun rtt/find-target-by-test-type (test-file)
-  (cond ((rtt/helper? test-file) (rtt/find-helper test-file))
-        ((rtt/model? test-file) (rtt/find-model test-file))
-        ((rtt/controller? test-file) (rtt/find-controller test-file))
-        ((rtt/app? test-file) (rtt/find-generic test-file))))
+  (or (rtt/find-spec test-file)
+      (cond ((rtt/helper? test-file) (rtt/find-helper test-file))
+            ((rtt/model? test-file) (rtt/find-model test-file))
+            ((rtt/controller? test-file) (rtt/find-controller test-file))
+            ((rtt/app? test-file) (rtt/find-generic test-file)))))
 
 
 
 ;; Predicates
 
 (defun rtt/test? (file)
-  (string-match "\\/test\\/" file))
+  (string-match "/\\(test\\|spec\\)/" file))
+
+(defun rtt/rspec? (file)
+  (string-match "/spec" file))
 
 (defun rtt/model? (file)
   (or
-   (string-match "\\/app\\/models" file)
-   (string-match "\\/lib\\/" file)))
+   (string-match "/app/models" file)
+   (string-match "/lib/" file)))
 
 (defun rtt/app? (file)
-  (string-match "\\/app" file))
+  (string-match "/app" file))
 
 (defun rtt/helper? (file)
-  (string-match "\\/app\\/helpers" file))
+  (string-match "/app/helpers" file))
+
+(defun rtt/javascript? (file)
+  (string-match "javascripts" file))
 
 (defun rtt/controller? (file)
-  (string-match "\\/app\\/controllers" file))
+  (string-match "/app/controllers" file))
 
 (defun rtt/unit-test? (file)
-  (string-match "\\/test\\/unit" file))
+  (string-match "/test/unit" file))
 
 (defun rtt/helper-test? (file)
-  (string-match "\\/test\\/unit\\/helpers" file))
+  (string-match "/test/unit/helpers" file))
 
 (defun rtt/functional-test? (file)
-  (string-match "\\/test\\/functional" file))
+  (string-match "/test/functional" file))
 
 
+;; rspec
 
+(defun rtt/find-spec (file)
+  (let* ((path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
+         (rb (replace-regexp-in-string ".rb$" "_spec.rb" path))
+         (spec (replace-regexp-in-string ".js$" "_spec.js" path)))
+    (if (file-exists-p spec)
+        (find-file spec))))
 
-;;;;;;;;;;;;;
-;; Finders ;;
-;;;;;;;;;;;;;
+(defun rtt/find-spec-target (file)
+  (let* ((path (replace-regexp-in-string "spec/" "app/" file))
+         (name (replace-regexp-in-string "_spec" "" path))
+         (target (if (rtt/javascript? name) (replace-regexp-in-string "app/" "app/assets/" name) name)))
+    (if (file-exists-p target)
+        (find-file target))))
+
+;; Test::Unit Finders
 
 (defun rtt/find-controller (file)
-  (rtt/find-target "app\\/controllers" "functional" file))
+  (rtt/find-target "app/controllers" "functional" file))
 
 (defun rtt/find-helper (file)
-  (rtt/find-target "app\\/helpers" "unit/helpers" file))
+  (rtt/find-target "app/helpers" "unit/helpers" file))
 
 (defun rtt/find-model (file)
   (or
-   (rtt/find-target "app\\/models" "unit" file)
+   (rtt/find-target "app/models" "unit" file)
    (rtt/find-target "lib" "unit" file)))
 
 (defun rtt/find-generic (file)
@@ -114,7 +134,7 @@
   (rtt/find-test "functional" "app/controllers" test-file))
 
 (defun rtt/find-helper-test (test-file)
-  (rtt/find-test "unit\\/helpers" "app/helpers" test-file))
+  (rtt/find-test "unit/helpers" "app/helpers" test-file))
 
 (defun rtt/find-unit-test (test-file)
   (or
@@ -123,11 +143,7 @@
    (rtt/find-test "unit" "app" test-file)))
 
 
-
-
-;;;;;;;;;;;;;
-;; Helpers ;;
-;;;;;;;;;;;;;
+;; Test::Unit Helpers
 
 (defun rtt/find-test (test-re rails-dir test-file)
   (let ((path (rtt/test-file test-re rails-dir test-file)))
