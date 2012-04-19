@@ -103,7 +103,8 @@
 (defun rtt/find-model (file)
   (or
    (rtt/find-target "app\\/models" "unit" file)
-   (rtt/find-target "lib" "unit" file)))
+   (rtt/find-target "lib" "unit" file)
+   (rtt/find-target "presenters" "unit" file)))
 
 (defun rtt/find-functional-test (test-file)
   (rtt/find-test "functional" "app/controllers" test-file))
@@ -114,7 +115,8 @@
 (defun rtt/find-unit-test (test-file)
   (or
    (rtt/find-test "unit" "app/models" test-file)
-   (rtt/find-test "unit" "lib" test-file)))
+   (rtt/find-test "unit" "lib" test-file)
+   (rtt/find-test "unit" "" test-file)))
 
 
 
