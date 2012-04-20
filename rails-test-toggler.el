@@ -24,22 +24,16 @@
 
 ;;; License:
 
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License
-;; as published by the Free Software Foundation; either version 3
-;; of the License, or (at your option) any later version.
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-;;
-;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
 
 ;; Code
+
+(defun rtt/create-spec ()
+  (interactive)
+  (find-file (rtt/spec-path-for-file (buffer-file-name))))
+
+;; (defun rtt/create-test ()
+;;   (interactive)
+;;   (find-file (rtt/file-path-for-spec (buffer-file-name))))
 
 (defun rtt/toggle-test-and-implementation ()
   (interactive)
@@ -101,18 +95,29 @@
 ;; rspec
 
 (defun rtt/find-spec (file)
+  (let ((path (rtt/spec-path-for-file file)))
+    (if (file-exists-p path)
+        (find-file path))))
+
+(defun rtt/find-spec-target (file)
+  (let ((path (rtt/file-path-for-spec file)))
+    (if (file-exists-p path)
+        (find-file path))))
+
+;; rspec paths
+
+(defun rtt/file-path-for-spec (spec)
+  (let* ((path (replace-regexp-in-string "spec/" "app/" spec))
+         (name (replace-regexp-in-string "_spec" "" path)))
+    (if (rtt/javascript? name)
+        (replace-regexp-in-string "app/" "app/assets/" name)
+      name)))
+
+(defun rtt/spec-path-for-file (file)
   (let* ((path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
          (rb (replace-regexp-in-string ".rb$" "_spec.rb" path))
          (spec (replace-regexp-in-string ".js$" "_spec.js" rb)))
-    (if (file-exists-p spec)
-        (find-file spec))))
-
-(defun rtt/find-spec-target (file)
-  (let* ((path (replace-regexp-in-string "spec/" "app/" file))
-         (name (replace-regexp-in-string "_spec" "" path))
-         (target (if (rtt/javascript? name) (replace-regexp-in-string "app/" "app/assets/" name) name)))
-    (if (file-exists-p target)
-        (find-file target))))
+    spec))
 
 ;; Test::Unit Finders
 
