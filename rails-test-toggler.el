@@ -114,7 +114,8 @@
       name)))
 
 (defun rtt/spec-path-for-file (file)
-  (let* ((path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
+  (let* ((normalized (replace-regexp-in-string "app/\\(assets/\\)?" "" file))
+         (path (concat "spec/" normalized))
          (rb (replace-regexp-in-string ".rb$" "_spec.rb" path))
          (spec (replace-regexp-in-string ".js$" "_spec.js" rb)))
     spec))
