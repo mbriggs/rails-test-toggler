@@ -79,6 +79,9 @@
 (defun rtt/javascript? (file)
   (string-match "javascripts" file))
 
+(defun rtt/lib? (file)
+  (string-match "lib/" file))
+
 (defun rtt/controller? (file)
   (string-match "/app/controllers" file))
 
@@ -109,14 +112,14 @@
 (defun rtt/file-path-for-spec (spec)
   (let* ((path (replace-regexp-in-string "spec/" "app/" spec))
          (name (replace-regexp-in-string "_spec" "" path)))
-    (if (rtt/javascript? name)
-        (replace-regexp-in-string "app/" "app/assets/" name)
-      name)))
+    (cond ((rtt/javascript? name) (replace-regexp-in-string "app/" "app/assets/" name))
+          ((rtt/lib? name) (replace-regexp-in-string "app/" "" name))
+          (t name))))
 
 (defun rtt/spec-path-for-file (file)
-  (let* ((normalized (replace-regexp-in-string "app/\\(assets/\\)?" "" file))
-         (path (concat "spec/" normalized))
-         (rb (replace-regexp-in-string ".rb$" "_spec.rb" path))
+  (let* ((app-path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
+         (lib-path (replace-regexp-in-string "lib/" "spec/lib/" file))
+         (rb (replace-regexp-in-string ".rb$" "_spec.rb" lib-path))
          (spec (replace-regexp-in-string ".js$" "_spec.js" rb)))
     spec))
 
