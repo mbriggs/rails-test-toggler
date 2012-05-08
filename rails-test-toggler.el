@@ -118,7 +118,7 @@
 
 (defun rtt/spec-path-for-file (file)
   (let* ((app-path (replace-regexp-in-string "app/\\(assets/\\)?" "spec/" file))
-         (lib-path (replace-regexp-in-string "lib/" "spec/lib/" file))
+         (lib-path (replace-regexp-in-string "lib/" "spec/lib/" app-path))
          (rb (replace-regexp-in-string ".rb$" "_spec.rb" lib-path))
          (spec (replace-regexp-in-string ".js$" "_spec.js" rb)))
     spec))
